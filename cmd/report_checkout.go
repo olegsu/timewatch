@@ -35,7 +35,7 @@ var checkoutCmd = &cobra.Command{
 		log := buildLogger("report checkout")
 		now := time.Now()
 		if reportCmdOptions.date == "" {
-			t := now.Format("2006-02-01")
+			t := now.Format("2006-01-02")
 			log.Debug("Date is not set, setting default", "date", t)
 			reportCmdOptions.date = t
 		}
