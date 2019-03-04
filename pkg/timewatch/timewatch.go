@@ -122,8 +122,8 @@ func (t *tw) doCheck(opt *ReportOptions) error {
 	data := map[string]string{
 		"e":  t.EmployeeID,
 		"tl": t.EmployeeID,
-		"c":  t.Compony,    // compony
-		"d":  "2019-02-25", // date to change
+		"c":  t.Compony, // compony
+		"d":  opt.Date,  // date to change
 	}
 	if opt.Report.Checkout != "" {
 		t := strings.Split(opt.Report.Checkout, "-")
