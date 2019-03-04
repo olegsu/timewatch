@@ -38,20 +38,6 @@ steps:
         only:
         - master
 
-  build_binaries:
-    title: Build binaries for all platforms - skip publish
-    image: goreleaser/goreleaser
-    stage: Build & Test
-    fail_fast: false
-    commands:
-    - go mod download
-    - goreleaser release -f .goreleaser.yml --rm-dist --skip-publish --skip-validate
-    when:
-      steps:
-      - name: main_clone
-      branch:
-        ignore:
-        - master
 
   release_binaries:
     title: Create release in Github with merlin CLI
@@ -69,3 +55,34 @@ steps:
       branch:
         only:
         - master
+
+  build:
+    title: "Build docker image with timewatch binary"
+    type: build
+    stage: Build & Test
+    tag: ${{CF_BRANCH_TAG_NORMALIZED}}
+    image_name: olsynt/timewatch
+    when:
+      steps:
+      - name: release_binaries
+        on:
+        - success
+
+
+  push_latest:
+    title: "Pushing image to registry with latest tag"
+    stage: Release
+    type: push
+    candidate: ${{build}}
+    tags:
+    - latest
+    - ${{VERSION}}
+    registry: "dockerhub"
+    when:
+      branch:
+        only:
+        - master
+      steps:
+        - name: build
+          on:
+          - success
