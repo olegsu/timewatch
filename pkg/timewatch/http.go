@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/olegsu/timewatch/pkg/logger"
 )
 
 const (
@@ -34,22 +36,25 @@ type (
 		cookies []*http.Cookie
 		url     string
 		method  string
+		log     logger.Logger
 	}
 )
 
 func doAPICall(opt *requestOptions) (*http.Response, error) {
 	client := &http.Client{}
 	requestURL := fmt.Sprintf("%s/%s", baseURL, opt.url)
-
 	if opt.qs != nil {
 		requestURL += "?"
 	}
 	for k, v := range opt.qs {
 		requestURL += fmt.Sprintf("%s=%s&", k, v)
 	}
+	opt.log.Debug("Final request URL", "url", requestURL)
 	finalPayloadString := ""
 	for k, v := range opt.data {
-		finalPayloadString += fmt.Sprintf("%s=%s&", k, v)
+		d := fmt.Sprintf("%s=%s", k, v)
+		opt.log.Debug("Adding data to payload", "data", d)
+		finalPayloadString += d + "&"
 	}
 	payload := strings.NewReader(finalPayloadString)
 

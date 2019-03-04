@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
+
+	"github.com/olegsu/timewatch/pkg/logger"
 )
 
 // Copyright © 2019 oleg2807@gmail.com
@@ -37,6 +39,7 @@ type (
 		User     string
 		Compony  string
 		Password string
+		Log      logger.Logger
 	}
 
 	ReportOptions struct {
@@ -50,6 +53,7 @@ type (
 		Compony    string `yaml:"compony"`
 		Password   string `yaml:"password"`
 		EmployeeID string `yaml:"employee_id"`
+		log        logger.Logger
 	}
 
 	dailyReportOptions struct {
@@ -71,6 +75,7 @@ func New(opt *TimewatchOptions) Timewatch {
 		User:     opt.User,
 		Compony:  opt.Compony,
 		Password: opt.Password,
+		log:      opt.Log,
 	}
 }
 
@@ -83,6 +88,7 @@ func (t *tw) Login() error {
 			"name": t.User,
 			"pw":   t.Password,
 		},
+		log: t.log,
 	})
 	if err != nil {
 		return err
@@ -96,7 +102,7 @@ func (t *tw) Login() error {
 	if strings.Contains(string(body), "The login details you entered are incorrect") {
 		return errors.New("Failed to login")
 	}
-	fmt.Println("Logged in")
+	t.log.Debug("Logged in")
 	id, err := findEmployeeIDFromHTML(body)
 	if err != nil {
 		return err
@@ -140,6 +146,7 @@ func (t *tw) doCheck(opt *ReportOptions) error {
 		method:  "POST",
 		data:    data,
 		cookies: t.cookies,
+		log:     t.log,
 	}
 	resp, err := doAPICall(reqOpt)
 	if err != nil {
@@ -170,6 +177,7 @@ func (t *tw) buildDailyReport(opt *ReportOptions) error {
 			"d":  opt.Date,
 		},
 		cookies: t.cookies,
+		log:     t.log,
 	})
 	if err != nil {
 		return err

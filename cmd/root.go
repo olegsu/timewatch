@@ -15,11 +15,12 @@ package cmd
 // limitations under the License.
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/spf13/cobra"
 )
+
+var rootCmdOptions struct {
+	Verbose bool
+}
 
 var rootCmd = &cobra.Command{
 	Use: "timewatch",
@@ -28,11 +29,9 @@ var rootCmd = &cobra.Command{
 // Execute - execute the root command
 func Execute() {
 	err := rootCmd.Execute()
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
+	dieOnError(err, buildLogger("timewatch"))
 }
 
 func init() {
+	rootCmd.PersistentFlags().BoolVar(&rootCmdOptions.Verbose, "verbose", false, "Set to get more detailed output")
 }

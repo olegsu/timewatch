@@ -19,6 +19,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/olegsu/timewatch/pkg/logger"
 	"gopkg.in/yaml.v2"
 )
 
@@ -37,16 +38,16 @@ func persistLogin(tw *tw) error {
 	return nil
 }
 
-func RestoreLogin() (Timewatch, error) {
+func RestoreLogin(log logger.Logger) (Timewatch, error) {
 	p := fmt.Sprintf("%s/%s", os.Getenv("HOME"), path)
+	log.Debug("Reading config file from", "path", p)
 	f, err := ioutil.ReadFile(p)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(string(f))
 	tw := &tw{}
+	tw.log = log
 	err = yaml.Unmarshal(f, tw)
-	fmt.Println(tw)
 	if err != nil {
 		return nil, err
 	}

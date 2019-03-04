@@ -15,8 +15,7 @@ package cmd
 // limitations under the License.
 
 import (
-	"fmt"
-	"os"
+	"strings"
 	"time"
 
 	"github.com/olegsu/timewatch/pkg/timewatch"
@@ -33,35 +32,30 @@ var checkinCmdOptions struct {
 var checkinCmd = &cobra.Command{
 	Use: "checkin",
 	Run: func(cmd *cobra.Command, args []string) {
+		log := buildLogger("report checkin")
 		now := time.Now()
 		if reportCmdOptions.date == "" {
-			t := now.Format("2006-02-01")
+			t := now.Format("2006-01-02")
+			log.Debug("Date is not set, setting default", "date", t)
 			reportCmdOptions.date = t
 		}
 		if checkinCmdOptions.time == "" {
 			t := now.Format("15:04")
+			t = strings.Replace(t, ":", "-", 1)
+			log.Debug("Time is not set, setting default", "time", t)
 			checkinCmdOptions.time = t
 		}
-		tw, err := timewatch.RestoreLogin()
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+		tw, err := timewatch.RestoreLogin(log)
+		dieOnError(err, log)
 		err = tw.Login()
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+		dieOnError(err, log)
 		err = tw.Report(timewatch.ActionCheckIN, &timewatch.ReportOptions{
 			Report: timewatch.Report{
 				Checkin: checkinCmdOptions.time,
 			},
 			Date: reportCmdOptions.date,
 		})
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+		dieOnError(err, log)
 	},
 }
 

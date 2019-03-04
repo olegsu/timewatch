@@ -15,9 +15,6 @@ package cmd
 // limitations under the License.
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/olegsu/timewatch/pkg/timewatch"
 
 	"github.com/spf13/cobra"
@@ -34,17 +31,15 @@ var initCmdOptions struct {
 var initCmd = &cobra.Command{
 	Use: "init",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(initCmdOptions)
+		l := buildLogger("init")
 		tw := timewatch.New(&timewatch.TimewatchOptions{
 			User:     initCmdOptions.user,
 			Compony:  initCmdOptions.compony,
 			Password: initCmdOptions.password,
+			Log:      l,
 		})
 		err := tw.Login()
-		if err != nil {
-			fmt.Println(err.Error())
-			os.Exit(1)
-		}
+		dieOnError(err, l)
 	},
 }
 
