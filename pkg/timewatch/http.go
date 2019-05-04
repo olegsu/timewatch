@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	baseURL = "http://checkin.timewatch.co.il/punch"
+	baseURL = "https://checkin.timewatch.co.il/punch"
 	login   = "punch2.php"
 	edit    = "editwh3.php"
 	daily   = "editwh2.php"
